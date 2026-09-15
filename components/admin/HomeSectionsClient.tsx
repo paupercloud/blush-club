@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Trash2, Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
 import { saveHomepageSection, deleteHomepageSection } from "@/actions/catalog";
 import type { Collection, HomepageSection } from "@/lib/types";
+import ImageUploader, { UploadedImage } from "./ImageUploader";
 
 const TYPE_LABELS: Record<string, string> = {
   hero: "Banner principal (hero)",
@@ -70,18 +71,22 @@ export default function HomeSectionsClient({ sections, collections }: { sections
                 </button>
               </div>
             </div>
-            <input
-              className="input mb-1.5"
-              placeholder="Título"
-              defaultValue={s.title || ""}
-              onBlur={(e) => persist({ ...s, title: e.target.value })}
-            />
-            <input
-              className="input mb-1.5"
-              placeholder="Subtítulo (opcional)"
-              defaultValue={s.subtitle || ""}
-              onBlur={(e) => persist({ ...s, subtitle: e.target.value })}
-            />
+            {s.type !== "hero" && (
+              <>
+                <input
+                  className="input mb-1.5"
+                  placeholder="Título"
+                  defaultValue={s.title || ""}
+                  onBlur={(e) => persist({ ...s, title: e.target.value })}
+                />
+                <input
+                  className="input mb-1.5"
+                  placeholder="Subtítulo (opcional)"
+                  defaultValue={s.subtitle || ""}
+                  onBlur={(e) => persist({ ...s, subtitle: e.target.value })}
+                />
+              </>
+            )}
             {s.type === "products" && (
               <select
                 className="input"
@@ -92,20 +97,7 @@ export default function HomeSectionsClient({ sections, collections }: { sections
               </select>
             )}
             {s.type === "hero" && (
-              <div className="grid grid-cols-2 gap-1.5">
-                <input
-                  className="input"
-                  placeholder="Texto del botón"
-                  defaultValue={s.config?.button_text || ""}
-                  onBlur={(e) => persist({ ...s, config: { ...s.config, button_text: e.target.value } })}
-                />
-                <input
-                  className="input"
-                  placeholder="Enlace del botón"
-                  defaultValue={s.config?.button_link || "/shop"}
-                  onBlur={(e) => persist({ ...s, config: { ...s.config, button_link: e.target.value } })}
-                />
-              </div>
+              <HeroSlidesEditor section={s} onSave={(config) => persist({ ...s, config })} />
             )}
           </div>
         ))}
@@ -124,6 +116,74 @@ export default function HomeSectionsClient({ sections, collections }: { sections
           ))}
         </div>
       )}
+      <style jsx>{`.input{width:100%;font-size:12.5px;border:1px solid #EADFDA;border-radius:8px;padding:7px 10px;outline:none;}`}</style>
+    </div>
+  );
+}
+function HeroSlidesEditor({ section, onSave }: { section: HomepageSection; onSave: (config: any) => void }) {
+  const [slides, setSlides] = useState<any[]>(
+    Array.isArray(section.config?.slides) && section.config.slides.length > 0 ? section.config.slides : [{}]
+  );
+
+  const update = (i: number, patch: any) => setSlides((s) => s.map((sl, idx) => (idx === i ? { ...sl, ...patch } : sl)));
+  const addSlide = () => setSlides((s) => [...s, {}]);
+  const removeSlide = (i: number) => setSlides((s) => s.filter((_, idx) => idx !== i));
+
+  return (
+    <div className="mt-2">
+      {slides.map((sl, i) => (
+        <div key={i} className="border border-[#EADFDA] rounded-lg p-2.5 mb-2">
+          <p className="text-[10.5px] font-bold text-[#8A6A6F] mb-1.5">Slide {i + 1}</p>
+          <ImageUploader
+            folder={hero-${i}}
+            images={sl.image_url ? [{ url: sl.image_url, sort_order: 0, is_primary: true }] : []}
+            onChange={(imgs) => update(i, { image_url: imgs[0]?.url || "" })}
+          />
+          <input
+            className="input mt-1.5"
+            placeholder="Subtítulo"
+            defaultValue={sl.subtitle || ""}
+            onBlur={(e) => update(i, { subtitle: e.target.value })}
+          />
+          <input
+            className="input mt-1.5"
+            placeholder="Título"
+            defaultValue={sl.title || ""}
+            onBlur={(e) => update(i, { title: e.target.value })}
+          />
+          <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+            <input
+              className="input"
+              placeholder="Texto del botón"
+              defaultValue={sl.button_text || ""}
+              onBlur={(e) => update(i, { button_text: e.target.value })}
+            />
+            <input
+              className="input"
+              placeholder="Enlace del botón"
+              defaultValue={sl.button_link || ""}
+              onBlur={(e) => update(i, { button_link: e.target.value })}
+            />
+          </div>
+          {slides.length > 1 && (
+            <button onClick={() => removeSlide(i)} className="text-[11px] mt-1.5" style={{ color: "var(--color-accent)" }}>
+              Quitar este slide
+            </button>
+          )}
+        </div>
+      ))}
+      <div className="flex gap-2 mt-1">
+        <button onClick={addSlide} className="text-[11.5px] border border-dashed border-[#D8B7BD] rounded-lg px-2.5 py-1.5">
+          + Agregar slide
+        </button>
+        <button
+          onClick={() => onSave({ slides })}
+          className="text-[11.5px] text-white rounded-full px-3 py-1.5"
+          style={{ background: "var(--color-primary)" }}
+        >
+          Guardar slides
+        </button>
+      </div>
       <style jsx>{`.input{width:100%;font-size:12.5px;border:1px solid #EADFDA;border-radius:8px;padding:7px 10px;outline:none;}`}</style>
     </div>
   );
