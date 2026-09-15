@@ -135,7 +135,7 @@ function HeroSlidesEditor({ section, onSave }: { section: HomepageSection; onSav
         <div key={i} className="border border-[#EADFDA] rounded-lg p-2.5 mb-2">
           <p className="text-[10.5px] font-bold text-[#8A6A6F] mb-1.5">Slide {i + 1}</p>
           <ImageUploader
-            folder={hero-${i}}
+            folder={`hero-${i}`}
             images={sl.image_url ? [{ url: sl.image_url, sort_order: 0, is_primary: true }] : []}
             onChange={(imgs) => update(i, { image_url: imgs[0]?.url || "" })}
           />
