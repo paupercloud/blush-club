@@ -121,4 +121,4 @@ Todo lo que cambies ahí se refleja de inmediato en la tienda pública — no ne
 - No hay todavía una "vista previa" separada antes de publicar: los cambios en `/admin` se reflejan de inmediato en la tienda.
 - El reordenamiento es con botones (subir/bajar), no arrastrando con el dedo.
 
-Ninguno de estos bloquea el uso real de la tienda; son mejoras que se agregan cuando tenga sentido para ti.
+Ninguno de estos bloquea el uso real de la tienda; son mejoras que se agregan cuando tenga sentido para ti. 
