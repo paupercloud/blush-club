@@ -139,7 +139,7 @@ export default function ProductForm({
           </button>
         ))}
         <button
-          onClick={() => setImmediate((v) => !v)}
+          onClick={() => setImmediate((v: boolean) => !v)}
           className="text-[11px] px-3 py-1.5 rounded-full border"
           style={{
             borderColor: "var(--color-accent)",
