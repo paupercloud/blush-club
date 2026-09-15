@@ -80,7 +80,7 @@ function Badge({ n }: { n: number }) {
     <span
       className="absolute -top-1.5 -right-2 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center"
       style={{ background: "var(--color-primary)" }}
-    >
+    > 
       {n}
     </span>
   );
