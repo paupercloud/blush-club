@@ -24,7 +24,7 @@ export default function Header({ settings, nav }: { settings: SiteSettings | nul
       className="border-b border-[#EADFDA] sticky top-0 z-40 bg-cover bg-center"
       style={{
         background: settings?.header_bg_url
-          ? url(${settings.header_bg_url}) center/cover
+          ? `url(${settings.header_bg_url}) center/cover`
           : "var(--color-background)",
       }}
     >
