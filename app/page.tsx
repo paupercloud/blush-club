@@ -2,7 +2,7 @@ import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { getHomepageSections, getProducts, getCategories, getBrands, getSettings } from "@/lib/queries";
 import type { HomepageSection } from "@/lib/types";
-
+import HeroCarousel from "@/components/HeroCarousel";
 export const revalidate = 0;
 
 export default async function HomePage() {
@@ -24,28 +24,20 @@ export default async function HomePage() {
 
 async function SectionRenderer({ section }: { section: HomepageSection }) {
   if (section.type === "hero") {
-    return (
-      <section
-        className="px-[18px] py-14 text-white"
-        style={{ background: `linear-gradient(135deg,var(--color-primary),#8A4655)` }}
-      >
-        <div className="max-w-[1100px] mx-auto">
-          <p className="serif text-[15px] tracking-wide opacity-85 mb-1.5">{section.subtitle}</p>
-          <h1 className="serif text-[40px] leading-[1.1] mb-3.5 max-w-[480px]">{section.title}</h1>
-          {section.config?.button_text && (
-            <Link
-              href={section.config.button_link || "/shop"}
-              className="inline-block bg-white text-[13px] font-semibold px-5 py-3 rounded-full"
-              style={{ color: "var(--color-primary)" }}
-            >
-              {section.config.button_text}
-            </Link>
-          )}
-        </div>
-      </section>
-    );
+    const slides =
+      Array.isArray(section.config?.slides) && section.config.slides.length > 0
+        ? section.config.slides
+        : [
+            {
+              title: section.title,
+              subtitle: section.subtitle,
+              button_text: section.config?.button_text,
+              button_link: section.config?.button_link,
+              image_url: section.config?.image_url,
+            },
+          ];
+    return <HeroCarousel slides={slides} />;
   }
-
   if (section.type === "categories") {
     const categories = await getCategories();
     return (
