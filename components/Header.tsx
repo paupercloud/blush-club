@@ -20,14 +20,21 @@ export default function Header({ settings, nav }: { settings: SiteSettings | nul
   };
 
   return (
-    <header className="border-b border-[#EADFDA] sticky top-0 z-40" style={{ background: "var(--color-background)" }}>
+    <header
+      className="border-b border-[#EADFDA] sticky top-0 z-40 bg-cover bg-center"
+      style={{
+        background: settings?.header_bg_url
+          ? url(${settings.header_bg_url}) center/cover
+          : "var(--color-background)",
+      }}
+    >
       <div className="max-w-[1100px] mx-auto px-[18px] py-3.5 flex items-center gap-3.5">
         <button onClick={() => setMenuOpen(!menuOpen)} className="bg-transparent border-none">
           <Menu size={20} color="var(--color-primary)" />
         </button>
         <Link href="/" className="flex-none">
           {settings?.logo_url ? (
-            <img src={settings.logo_url} alt={settings.store_name} className="h-7" />
+            <img src={settings.logo_url} alt={settings.store_name} style={{ width: settings?.logo_width || "110px", height: "auto" }} />
           ) : (
             <span className="serif text-2xl font-semibold" style={{ color: "var(--color-primary)" }}>
               {settings?.store_name || "BLUSH CLUB"}
