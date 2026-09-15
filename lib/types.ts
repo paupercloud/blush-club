@@ -76,9 +76,11 @@ export type SiteSettings = {
   color_background: string;
   color_text: string;
   border_radius: string;
-  whatsapp: string;
+ whatsapp: string;
   instagram: string;
   email: string;
+  logo_width: string;
+  header_bg_url: string | null;
   deposit_percent: number;
   delivery_time_text: string;
   reserve_policy: string;
