@@ -10,6 +10,7 @@ export default function SettingsClient({ settings }: { settings: SiteSettings })
   const router = useRouter();
   const [form, setForm] = useState(settings);
   const [logo, setLogo] = useState<UploadedImage[]>(settings.logo_url ? [{ url: settings.logo_url, sort_order: 0, is_primary: true }] : []);
+  const [headerBg, setHeaderBg] = useState<UploadedImage[]>(settings.header_bg_url ? [{ url: settings.header_bg_url, sort_order: 0, is_primary: true }] : []);
   const [favicon, setFavicon] = useState<UploadedImage[]>(settings.favicon_url ? [{ url: settings.favicon_url, sort_order: 0, is_primary: true }] : []);
   const [saving, setSaving] = useState(false);
 
@@ -22,6 +23,8 @@ export default function SettingsClient({ settings }: { settings: SiteSettings })
         store_name: form.store_name,
         tagline: form.tagline,
         logo_url: logo[0]?.url || null,
+        logo_width: form.logo_width || "110px",
+        header_bg_url: headerBg[0]?.url || null,
         favicon_url: favicon[0]?.url || null,
         color_primary: form.color_primary,
         color_secondary: form.color_secondary,
@@ -55,6 +58,12 @@ export default function SettingsClient({ settings }: { settings: SiteSettings })
         </Field>
         <Field label="Favicon (ícono de la pestaña del navegador)">
           <ImageUploader bucket="branding" folder="favicon" images={favicon} onChange={(imgs) => setFavicon(imgs.slice(-1))} />
+        </Field>
+        <Field label="Ancho del logo (ej. 110px, 160px)">
+          <input className="input" value={form.logo_width || "110px"} onChange={(e) => set("logo_width", e.target.value)} />
+        </Field>
+        <Field label="Imagen de fondo del header (opcional)">
+          <ImageUploader bucket="branding" folder="header" images={headerBg} onChange={(imgs) => setHeaderBg(imgs.slice(-1))} />
         </Field>
       </Section>
 
