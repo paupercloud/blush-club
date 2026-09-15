@@ -150,7 +150,7 @@ export default function ProductForm({
           entrega inmediata
         </button>
         <button
-          onClick={() => setAvailable((v) => !v)}
+         onClick={() => setAvailable((v: boolean) => !v)}
           className="text-[11px] px-3 py-1.5 rounded-full border"
           style={{ borderColor: "#8A6A6F", background: available ? "#8A6A6F" : "transparent", color: available ? "#fff" : "#8A6A6F" }}
         >
