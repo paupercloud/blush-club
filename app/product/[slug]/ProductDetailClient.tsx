@@ -76,8 +76,8 @@ export default function ProductDetailClient({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <div className="relative aspect-square rounded-[18px] mb-2.5 bg-[#F1DFDE] overflow-hidden">
-                        {photo && <img src={photo} alt={product.name} className="w-full h-full object-cover" style={{ objectPosition: photoFocus === "top" ? "center top" : photoFocus === "bottom" ? "center bottom" : "center center" }} />}
+                    <div className="relative rounded-[18px] mb-2.5 bg-[#F1DFDE] overflow-hidden">
+                                    {photo && <img src={photo} alt={product.name} className="w-full h-auto" />}
             {photos.length > 1 && (
               <>
                 <button
