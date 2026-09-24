@@ -72,7 +72,8 @@ export default function ProductForm({
 
   const handleSave = async () => {
     if (!name.trim()) return alert("El nombre del producto es obligatorio.");
-    setSaving(true);
+        setSaving(true);
+    alert("Nombres que se van a guardar: " + JSON.stringify(tones.map((t) => t.name)));
     try {
       const { slug: newSlug } = await saveProduct({
         id: initial?.id,
