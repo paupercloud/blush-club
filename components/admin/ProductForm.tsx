@@ -13,8 +13,7 @@ const COLLECTION_OPTIONS = [
   ["trending", "Trending"], ["destacado", "Destacado"], ["oferta", "Oferta"],
 ] as const;
 
-type Tone = { id?: string; name: string; code: string; swatch_color: string; available: boolean };
-
+type Tone = { id?: string; name: string; code: string; swatch_color: string; swatch_type: "color" | "image"; image_url: string; images: UploadedImage[]; available: boolean };
 export default function ProductForm({
   brands,
   categories,
@@ -43,17 +42,30 @@ export default function ProductForm({
   const [collections, setCollections] = useState<string[]>(
     (initial?.product_collections || []).map((pc: any) => pc.collections?.key).filter(Boolean)
   );
-  const [images, setImages] = useState<UploadedImage[]>(
-    (initial?.product_images || []).map((img: any) => ({ url: img.url, sort_order: img.sort_order, is_primary: img.is_primary }))
+    const [images, setImages] = useState<UploadedImage[]>(
+    (initial?.product_images || [])
+      .filter((img: any) => !img.variant_id)
+      .map((img: any) => ({ url: img.url, sort_order: img.sort_order, is_primary: img.is_primary }))
   );
   const [tones, setTones] = useState<Tone[]>(
-    (initial?.product_variants || []).map((v: any) => ({ id: v.id, name: v.name, code: v.code || "", swatch_color: v.swatch_color, available: v.available }))
+    (initial?.product_variants || []).map((v: any) => ({
+      id: v.id,
+      name: v.name,
+      code: v.code || "",
+      swatch_color: v.swatch_color,
+      swatch_type: v.swatch_type || "color",
+      image_url: v.image_url || "",
+      images: (initial?.product_images || [])
+        .filter((img: any) => img.variant_id === v.id)
+        .map((img: any) => ({ url: img.url, sort_order: img.sort_order, is_primary: img.is_primary })),
+      available: v.available,
+    }))
   );
 
   const toggleCollection = (key: string) =>
     setCollections((c) => (c.includes(key) ? c.filter((x) => x !== key) : [...c, key]));
 
-  const addTone = () => setTones((t) => [...t, { name: "", code: "", swatch_color: "#D8B7BD", available: true }]);
+    const addTone = () => setTones((t) => [...t, { name: "", code: "", swatch_color: "#D8B7BD", swatch_type: "color", image_url: "", images: [], available: true }]);
   const updateTone = (i: number, field: keyof Tone, val: any) =>
     setTones((t) => t.map((tone, idx) => (idx === i ? { ...tone, [field]: val } : tone)));
   const removeTone = (i: number) => setTones((t) => t.filter((_, idx) => idx !== i));
@@ -79,7 +91,17 @@ export default function ProductForm({
         available,
         immediate_delivery: immediate,
         collection_keys: collections,
-        variants: tones.map((t, i) => ({ ...t, sort_order: i })),
+                variants: tones.map((t, i) => ({
+          id: t.id,
+          name: t.name,
+          code: t.code || null,
+          swatch_color: t.swatch_color,
+          swatch_type: t.swatch_type,
+          image_url: t.swatch_type === "image" ? (t.image_url || null) : null,
+          available: t.available,
+          sort_order: i,
+          images: t.images.map((img, j) => ({ url: img.url, sort_order: j })),
+        })),
         images,
       });
       router.push("/admin/products");
@@ -161,22 +183,73 @@ export default function ProductForm({
       <p className="text-xs font-semibold mt-4 mb-1.5">Fotografías</p>
       <ImageUploader folder={slug || slugify(name) || "producto"} images={images} onChange={setImages} />
 
-      <p className="text-xs font-semibold mt-4 mb-1.5">Tonos ({tones.length})</p>
-      <div className="flex flex-col gap-2 mb-2">
+            <p className="text-xs font-semibold mt-4 mb-1.5">Tonos ({tones.length})</p>
+      <div className="flex flex-col gap-3 mb-2">
         {tones.map((t, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <input
-              type="color"
-              value={t.swatch_color}
-              onChange={(e) => updateTone(i, "swatch_color", e.target.value)}
-              className="w-7 h-7 rounded-full border-none p-0"
+          <div key={i} className="border border-[#F0E4E1] rounded-xl p-2.5">
+            <div className="flex items-center gap-2 mb-2">
+              {t.swatch_type === "color" ? (
+                <input
+                  type="color"
+                  value={t.swatch_color}
+                  onChange={(e) => updateTone(i, "swatch_color", e.target.value)}
+                  className="w-7 h-7 rounded-full border-none p-0"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-full overflow-hidden border border-[#eadfda] bg-[#f7f1ef] flex-shrink-0">
+                  {t.image_url && <img src={t.image_url} className="w-full h-full object-cover" />}
+                </div>
+              )}
+              <input className="input flex-1" placeholder="Nombre del tono" value={t.name} onChange={(e) => updateTone(i, "name", e.target.value)} />
+              <input className="input w-16" placeholder="Código" value={t.code} onChange={(e) => updateTone(i, "code", e.target.value)} />
+              <label className="text-[10px] flex items-center gap-1 whitespace-nowrap">
+                <input type="checkbox" checked={t.available} onChange={(e) => updateTone(i, "available", e.target.checked)} /> disp.
+              </label>
+              <button onClick={() => removeTone(i)}><X size={14} color="var(--color-accent)" /></button>
+            </div>
+
+            <div className="flex gap-2 mb-2">
+              <button
+                onClick={() => updateTone(i, "swatch_type", "color")}
+                className="text-[10.5px] px-2.5 py-1 rounded-full border"
+                style={{
+                  borderColor: "var(--color-primary)",
+                  background: t.swatch_type === "color" ? "var(--color-primary)" : "transparent",
+                  color: t.swatch_type === "color" ? "#fff" : "var(--color-primary)",
+                }}
+              >
+                ícono: color
+              </button>
+              <button
+                onClick={() => updateTone(i, "swatch_type", "image")}
+                className="text-[10.5px] px-2.5 py-1 rounded-full border"
+                style={{
+                  borderColor: "var(--color-primary)",
+                  background: t.swatch_type === "image" ? "var(--color-primary)" : "transparent",
+                  color: t.swatch_type === "image" ? "#fff" : "var(--color-primary)",
+                }}
+              >
+                ícono: imagen
+              </button>
+            </div>
+
+            {t.swatch_type === "image" && (
+              <div className="mb-2">
+                <p className="text-[10.5px] text-[#8A6A6F] mb-1">Imagen del ícono del tono</p>
+                <ImageUploader
+                  folder={`${slug || slugify(name) || "producto"}-tono-${i}-icono`}
+                  images={t.image_url ? [{ url: t.image_url, sort_order: 0, is_primary: true }] : []}
+                  onChange={(imgs) => updateTone(i, "image_url", imgs[0]?.url || "")}
+                />
+              </div>
+            )}
+
+            <p className="text-[10.5px] text-[#8A6A6F] mb-1">Fotos de este tono (galería)</p>
+            <ImageUploader
+              folder={`${slug || slugify(name) || "producto"}-tono-${i}`}
+              images={t.images}
+              onChange={(imgs) => updateTone(i, "images", imgs)}
             />
-            <input className="input flex-1" placeholder="Nombre del tono" value={t.name} onChange={(e) => updateTone(i, "name", e.target.value)} />
-            <input className="input w-16" placeholder="Código" value={t.code} onChange={(e) => updateTone(i, "code", e.target.value)} />
-            <label className="text-[10px] flex items-center gap-1 whitespace-nowrap">
-              <input type="checkbox" checked={t.available} onChange={(e) => updateTone(i, "available", e.target.checked)} /> disp.
-            </label>
-            <button onClick={() => removeTone(i)}><X size={14} color="var(--color-accent)" /></button>
           </div>
         ))}
       </div>
