@@ -39,9 +39,9 @@ export type ProductFormInput = {
     image_url: string | null;
     available: boolean;
     sort_order: number;
-    images: { url: string; sort_order: number }[];
+        images: { url: string; sort_order: number; focus?: string }[];
   }[];
-  images: { id?: string; url: string; sort_order: number; is_primary: boolean }[];
+    images: { id?: string; url: string; sort_order: number; is_primary: boolean; focus?: string }[];
 };
 
 export async function saveProduct(input: ProductFormInput) {
@@ -113,7 +113,7 @@ export async function saveProduct(input: ProductFormInput) {
 
   // Fotos generales del producto (sin tono asignado)
   await supabase.from("product_images").delete().eq("product_id", productId).is("variant_id", null);
-  if (input.images.length) {
+    if (input.images.length) {
     await supabase.from("product_images").insert(
       input.images.map((img, i) => ({
         product_id: productId,
@@ -121,6 +121,7 @@ export async function saveProduct(input: ProductFormInput) {
         url: img.url,
         sort_order: i,
         is_primary: i === 0,
+        focus: img.focus || "center",
       }))
     );
   }
@@ -130,13 +131,14 @@ export async function saveProduct(input: ProductFormInput) {
     const v = input.variants[i];
     const variantId = newVariantIds[i];
     if (v.images && v.images.length) {
-      await supabase.from("product_images").insert(
+           await supabase.from("product_images").insert(
         v.images.map((img, j) => ({
           product_id: productId,
           variant_id: variantId,
           url: img.url,
           sort_order: j,
           is_primary: j === 0,
+          focus: img.focus || "center",
         }))
       );
     }
