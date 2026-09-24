@@ -130,7 +130,7 @@ export default function ProductDetailClient({
           {tones.length > 0 && (
             <div className="mb-4.5">
               <p className="text-xs font-semibold mb-2">
-                                Tono: <span className="font-normal" style={{ color: "red", fontWeight: 700 }}>PRUEBA:[{JSON.stringify(tone?.name)}]{tone && !tone.available && " (agotado)"}</span>
+                                                                Tono: <span className="font-normal" style={{ color: "red", fontWeight: 700 }}>PRUEBA:[{JSON.stringify(tone?.name)}]{tone && !tone.available && " (agotado)"}</span>
               </p>
               <div className="flex gap-2.5 flex-wrap">
                                 {tones.map((t, i) => (
