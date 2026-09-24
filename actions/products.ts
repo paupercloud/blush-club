@@ -140,7 +140,7 @@ export async function saveProduct(input: ProductFormInput) {
         }))
       );
     }
-}
+  }
   revalidatePath("/");
   revalidatePath("/shop");
   revalidatePath(`/product/${slug}`);
