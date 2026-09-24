@@ -27,6 +27,7 @@ export type ProductImage = {
   url: string;
   sort_order: number;
   is_primary: boolean;
+  focus: string | null;
 };
 
 export type ProductVariant = {
