@@ -30,7 +30,9 @@ export default function ProductDetailClient({
   const tone = tones[toneIdx];
   const toneImages = tone ? allImages.filter((img) => img.variant_id === tone.id) : [];
   const photos = toneImages.length > 0 ? toneImages : defaultImages;
-  const photo = photos[photoIdx]?.url || photos[0]?.url;
+    const currentPhoto = photos[photoIdx] || photos[0];
+  const photo = currentPhoto?.url;
+  const photoFocus = currentPhoto?.focus || "center";
 
   const selectTone = (i: number) => {
     setToneIdx(i);
@@ -75,7 +77,7 @@ export default function ProductDetailClient({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <div className="relative aspect-square rounded-[18px] mb-2.5 bg-[#F1DFDE] overflow-hidden">
-            {photo && <img src={photo} alt={product.name} className="w-full h-full object-cover" />}
+                        {photo && <img src={photo} alt={product.name} className="w-full h-full object-cover" style={{ objectPosition: photoFocus === "top" ? "center top" : photoFocus === "bottom" ? "center bottom" : "center center" }} />}
             {photos.length > 1 && (
               <>
                 <button
@@ -101,7 +103,7 @@ export default function ProductDetailClient({
                 className="w-14 h-14 rounded-[10px] flex-none overflow-hidden"
                 style={{ border: i === photoIdx ? "2px solid var(--color-primary)" : "2px solid transparent" }}
               >
-                <img src={ph.url} alt="" className="w-full h-full object-cover" />
+                                <img src={ph.url} alt="" className="w-full h-full object-cover" style={{ objectPosition: ph.focus === "top" ? "center top" : ph.focus === "bottom" ? "center bottom" : "center center" }} />
               </button>
             ))}
           </div>
