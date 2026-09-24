@@ -13,13 +13,14 @@ export default function ProductCard({ product }: { product: Product }) {
   const isFav = favs.includes(product.id);
   const tones = product.product_variants || [];
   const tone = tones[toneIdx];
-  const photo = product.product_images?.[0]?.url;
+    const photo = product.product_images?.[0]?.url;
+  const photoFocus = product.product_images?.[0]?.focus || "center";
   const collections = (product.product_collections || []).map((c) => c.collections?.key);
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-[#F0E4E1]">
       <Link href={`/product/${product.slug}`} className="block relative aspect-square bg-[#F1DFDE]">
-        {photo && <img src={photo} alt={product.name} className="w-full h-full object-cover" />}
+                {photo && <img src={photo} alt={product.name} className="w-full h-full object-cover" style={{ objectPosition: photoFocus === "top" ? "center top" : photoFocus === "bottom" ? "center bottom" : "center center" }} />}
         <button
           onClick={(e) => {
             e.preventDefault();
