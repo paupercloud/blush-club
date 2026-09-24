@@ -19,15 +19,23 @@ export default function ProductDetailClient({
 }) {
   const { favs, toggleFav, addToCart } = useCart();
   const isFav = favs.includes(product.id);
-  const tones = product.product_variants || [];
-  const photos = product.product_images || [];
+    const tones = product.product_variants || [];
+  const allImages = product.product_images || [];
+  const defaultImages = allImages.filter((img) => !img.variant_id);
   const firstAvailable = tones.findIndex((t) => t.available);
 
   const [photoIdx, setPhotoIdx] = useState(0);
   const [toneIdx, setToneIdx] = useState(firstAvailable >= 0 ? firstAvailable : 0);
   const [qty, setQty] = useState(1);
   const tone = tones[toneIdx];
-  const photo = tone?.image_url || photos[photoIdx]?.url || photos[0]?.url;
+  const toneImages = tone ? allImages.filter((img) => img.variant_id === tone.id) : [];
+  const photos = toneImages.length > 0 ? toneImages : defaultImages;
+  const photo = photos[photoIdx]?.url || photos[0]?.url;
+
+  const selectTone = (i: number) => {
+    setToneIdx(i);
+    setPhotoIdx(0);
+  };
 
   const handleAdd = () => {
     if (!tone || !tone.available) return;
@@ -125,18 +133,21 @@ export default function ProductDetailClient({
                 Tono: <span className="font-normal">{tone?.name}{tone && !tone.available && " (agotado)"}</span>
               </p>
               <div className="flex gap-2.5 flex-wrap">
-                {tones.map((t, i) => (
+                                {tones.map((t, i) => (
                   <button
                     key={t.id}
                     title={t.name}
-                    onClick={() => setToneIdx(i)}
-                    className="swatch w-[30px] h-[30px] rounded-full relative"
+                    onClick={() => selectTone(i)}
+                    className="swatch w-[30px] h-[30px] rounded-full relative overflow-hidden"
                     style={{
-                      background: t.swatch_color,
+                      background: t.swatch_type === "image" ? "transparent" : t.swatch_color,
                       border: i === toneIdx ? "2.5px solid var(--color-text)" : "1.5px solid rgba(0,0,0,0.15)",
                       opacity: t.available ? 1 : 0.35,
                     }}
                   >
+                    {t.swatch_type === "image" && t.image_url && (
+                      <img src={t.image_url} alt={t.name} className="w-full h-full object-cover" />
+                    )}
                     {i === toneIdx && <Check size={13} color="#fff" className="absolute inset-0 m-auto drop-shadow" />}
                   </button>
                 ))}
