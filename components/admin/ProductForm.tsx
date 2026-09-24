@@ -72,8 +72,11 @@ export default function ProductForm({
 
   const handleSave = async () => {
     if (!name.trim()) return alert("El nombre del producto es obligatorio.");
-        setSaving(true);
-    alert("Nombres que se van a guardar: " + JSON.stringify(tones.map((t) => t.name)));
+                setSaving(true);
+    const toneNamesFromScreen = tones.map((_, i) => {
+      const el = document.querySelector(`input[data-tone-name-index="${i}"]`) as HTMLInputElement | null;
+      return el ? el.value : "";
+    });
     try {
       const { slug: newSlug } = await saveProduct({
         id: initial?.id,
@@ -93,8 +96,8 @@ export default function ProductForm({
         immediate_delivery: immediate,
         collection_keys: collections,
                 variants: tones.map((t, i) => ({
-          id: t.id,
-          name: t.name,
+                    id: t.id,
+          name: toneNamesFromScreen[i] || t.name,
           code: t.code || null,
           swatch_color: t.swatch_color,
           swatch_type: t.swatch_type,
@@ -201,14 +204,13 @@ export default function ProductForm({
                   {t.image_url && <img src={t.image_url} className="w-full h-full object-cover" />}
                 </div>
               )}
-                            <input
+                                          <input
                 className="input flex-1"
                 placeholder="Nombre del tono"
                 autoComplete="off"
-                value={t.name}
+                data-tone-name-index={i}
+                defaultValue={t.name}
                 onChange={(e) => updateTone(i, "name", e.target.value)}
-                onBlur={(e) => updateTone(i, "name", e.target.value)}
-                onInput={(e: any) => updateTone(i, "name", e.target.value)}
               />
               <input className="input w-16" placeholder="Código" value={t.code} onChange={(e) => updateTone(i, "code", e.target.value)} />
               <label className="text-[10px] flex items-center gap-1 whitespace-nowrap">
