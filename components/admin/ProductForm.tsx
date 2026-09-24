@@ -201,7 +201,15 @@ export default function ProductForm({
                   {t.image_url && <img src={t.image_url} className="w-full h-full object-cover" />}
                 </div>
               )}
-              <input className="input flex-1" placeholder="Nombre del tono" value={t.name} onChange={(e) => updateTone(i, "name", e.target.value)} />
+                            <input
+                className="input flex-1"
+                placeholder="Nombre del tono"
+                autoComplete="off"
+                value={t.name}
+                onChange={(e) => updateTone(i, "name", e.target.value)}
+                onBlur={(e) => updateTone(i, "name", e.target.value)}
+                onInput={(e: any) => updateTone(i, "name", e.target.value)}
+              />
               <input className="input w-16" placeholder="Código" value={t.code} onChange={(e) => updateTone(i, "code", e.target.value)} />
               <label className="text-[10px] flex items-center gap-1 whitespace-nowrap">
                 <input type="checkbox" checked={t.available} onChange={(e) => updateTone(i, "available", e.target.checked)} /> disp.
