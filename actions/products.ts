@@ -30,7 +30,17 @@ export type ProductFormInput = {
   available: boolean;
   immediate_delivery: boolean;
   collection_keys: string[];
-  variants: { id?: string; name: string; code: string | null; swatch_color: string; available: boolean; sort_order: number }[];
+  variants: {
+    id?: string;
+    name: string;
+    code: string | null;
+    swatch_color: string;
+    swatch_type: "color" | "image";
+    image_url: string | null;
+    available: boolean;
+    sort_order: number;
+    images: { url: string; sort_order: number }[];
+  }[];
   images: { id?: string; url: string; sort_order: number; is_primary: boolean }[];
 };
 
@@ -77,27 +87,37 @@ export async function saveProduct(input: ProductFormInput) {
     }
   }
 
-  // Tonos: reemplaza todos (simple y predecible para un catálogo de este tamaño)
+   // Tonos: borra los anteriores (esto borra en cascada las fotos propias de cada tono) y crea de nuevo
   await supabase.from("product_variants").delete().eq("product_id", productId);
-  if (input.variants.length) {
-    await supabase.from("product_variants").insert(
-      input.variants.map((v, i) => ({
+
+  const newVariantIds: string[] = [];
+  for (let i = 0; i < input.variants.length; i++) {
+    const v = input.variants[i];
+    const { data: vRow, error: vErr } = await supabase
+      .from("product_variants")
+      .insert({
         product_id: productId,
         name: v.name,
         code: v.code,
         swatch_color: v.swatch_color,
+        swatch_type: v.swatch_type,
+        image_url: v.image_url,
         available: v.available,
         sort_order: i,
-      }))
-    );
+      })
+      .select("id")
+      .single();
+    if (vErr) throw vErr;
+    newVariantIds.push(vRow.id);
   }
 
-  // Fotos: reemplaza el listado (las URLs ya subidas a Storage se conservan)
-  await supabase.from("product_images").delete().eq("product_id", productId);
+  // Fotos generales del producto (sin tono asignado)
+  await supabase.from("product_images").delete().eq("product_id", productId).is("variant_id", null);
   if (input.images.length) {
     await supabase.from("product_images").insert(
       input.images.map((img, i) => ({
         product_id: productId,
+        variant_id: null,
         url: img.url,
         sort_order: i,
         is_primary: i === 0,
@@ -105,6 +125,22 @@ export async function saveProduct(input: ProductFormInput) {
     );
   }
 
+  // Fotos propias de cada tono
+  for (let i = 0; i < input.variants.length; i++) {
+    const v = input.variants[i];
+    const variantId = newVariantIds[i];
+    if (v.images && v.images.length) {
+      await supabase.from("product_images").insert(
+        v.images.map((img, j) => ({
+          product_id: productId,
+          variant_id: variantId,
+          url: img.url,
+          sort_order: j,
+          is_primary: j === 0,
+        }))
+      );
+    }
+}
   revalidatePath("/");
   revalidatePath("/shop");
   revalidatePath(`/product/${slug}`);
