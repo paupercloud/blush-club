@@ -23,6 +23,7 @@ export type Collection = { id: string; key: string; label: string };
 export type ProductImage = {
   id: string;
   product_id: string;
+  variant_id: string | null;
   url: string;
   sort_order: number;
   is_primary: boolean;
@@ -34,6 +35,7 @@ export type ProductVariant = {
   name: string;
   code: string | null;
   swatch_color: string;
+  swatch_type: "color" | "image";
   image_url: string | null;
   available: boolean;
   sort_order: number;
