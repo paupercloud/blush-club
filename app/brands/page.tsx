@@ -1,0 +1,26 @@
+import Link from "next/link";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export const revalidate = 0;
+
+export default async function BrandsPage() {
+  const supabase = createServerSupabaseClient();
+  const { data: brands } = await supabase.from("brands").select("*").eq("active", true).order("name");
+
+  return (
+    <section className="max-w-[1100px] mx-auto px-[18px] py-6 pb-16">
+      <h1 className="serif text-[28px] mb-1">Marcas</h1>
+      <p className="text-[12.5px] text-[#8A6A6F] mb-4.5">{(brands || []).length} marcas</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+        {(brands || []).map((b: any) => (
+          <Link key={b.id} href={`/brand/${b.slug}`} className="bg-white border border-[#F0E4E1] rounded-2xl overflow-hidden block">
+            <div className="aspect-square bg-[#F1DFDE]">
+              {b.image_url && <img src={b.image_url} alt={b.name} className="w-full h-full object-cover" />}
+            </div>
+            <p className="text-[13px] font-medium text-center py-2.5">{b.name}</p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
