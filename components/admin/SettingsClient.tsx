@@ -30,7 +30,8 @@ export default function SettingsClient({ settings }: { settings: SiteSettings })
         color_secondary: form.color_secondary,
         color_accent: form.color_accent,
         color_background: form.color_background,
-        color_text: form.color_text,
+               color_text: form.color_text,
+        nav_text_color: form.nav_text_color,
         border_radius: form.border_radius,
         whatsapp: form.whatsapp,
         instagram: form.instagram,
@@ -73,7 +74,8 @@ export default function SettingsClient({ settings }: { settings: SiteSettings })
           <ColorField label="Color secundario" value={form.color_secondary} onChange={(v) => set("color_secondary", v)} />
           <ColorField label="Color de acento" value={form.color_accent} onChange={(v) => set("color_accent", v)} />
           <ColorField label="Fondo" value={form.color_background} onChange={(v) => set("color_background", v)} />
-          <ColorField label="Texto" value={form.color_text} onChange={(v) => set("color_text", v)} />
+                    <ColorField label="Texto" value={form.color_text} onChange={(v) => set("color_text", v)} />
+          <ColorField label="Texto del menú desplegable" value={form.nav_text_color || "#FFFFFF"} onChange={(v) => set("nav_text_color", v)} />
         </div>
         <Field label="Redondeado de bordes (ej. 16px, 4px, 999px)">
           <input className="input" value={form.border_radius} onChange={(e) => set("border_radius", e.target.value)} />
