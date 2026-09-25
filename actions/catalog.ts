@@ -53,7 +53,35 @@ export async function deleteCategory(id: string) {
   if (error) throw error;
   revalidatePath("/admin/categories");
 }
-
+// ---------- Subcategorías ----------
+export async function saveSubcategory(input: { id?: string; category_id: string; name: string; sort_order: number }) {
+  const supabase = await requireAdmin();
+  if (input.id) {
+    const { error } = await supabase.from("subcategories").update({ name: input.name, sort_order: input.sort_order }).eq("id", input.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from("subcategories").insert({ category_id: input.category_id, name: input.name, sort_order: input.sort_order });
+    if (error) throw error;
+  }
+  revalidatePath("/admin/categories");
+  revalidatePath("/");
+}
+export async function deleteSubcategory(id: string) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase.from("subcategories").delete().eq("id", id);
+  if (error) throw error;
+  revalidatePath("/admin/categories");
+  revalidatePath("/");
+}
+export async function reorderSubcategories(items: { id: string; sort_order: number }[]) {
+  const supabase = await requireAdmin();
+  for (const item of items) {
+    const { error } = await supabase.from("subcategories").update({ sort_order: item.sort_order }).eq("id", item.id);
+    if (error) throw error;
+  }
+  revalidatePath("/admin/categories");
+  revalidatePath("/");
+}
 // ---------- Configuración / identidad ----------
 export async function saveSettings(input: Record<string, any>) {
   const supabase = await requireAdmin();
