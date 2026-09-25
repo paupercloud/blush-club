@@ -62,7 +62,7 @@ export default function Header({ settings, nav }: { settings: SiteSettings | nul
       {menuOpen && (
         <nav className="border-t border-[#EADFDA] px-[18px] py-2.5 flex flex-wrap gap-4">
           {nav.map((item) => (
-            <Link key={item.id} href={item.href} onClick={() => setMenuOpen(false)} className="text-sm" style={{ color: "var(--color-primary)" }}>
+                       <Link key={item.id} href={item.href} onClick={() => setMenuOpen(false)} className="text-sm" style={{ color: settings?.nav_text_color || "var(--color-primary)" }}>
               {item.label}
             </Link>
           ))}
