@@ -77,7 +77,8 @@ export type SiteSettings = {
   color_secondary: string;
   color_accent: string;
   color_background: string;
-  color_text: string;
+    color_text: string;
+  nav_text_color: string;
   border_radius: string;
  whatsapp: string;
   instagram: string;
