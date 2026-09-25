@@ -17,7 +17,7 @@ export default function NavigationClient({ items }: { items: NavigationItem[] })
   const addRow = () =>
     setRows((r) => [...r, { id: undefined as any, label: "", href: "/", sort_order: r.length, visible: true }]);
 
-  const removeRow = async (i: number) => {
+    const removeRow = async (i: number) => {
     const row = rows[i];
     if (row.id) {
       if (!confirm(`¿Eliminar "${row.label}" del menú?`)) return;
@@ -25,6 +25,16 @@ export default function NavigationClient({ items }: { items: NavigationItem[] })
     }
     setRows((r) => r.filter((_, idx) => idx !== i));
     router.refresh();
+  };
+
+  const moveRow = (i: number, direction: -1 | 1) => {
+    setRows((r) => {
+      const target = i + direction;
+      if (target < 0 || target >= r.length) return r;
+      const copy = [...r];
+      [copy[i], copy[target]] = [copy[target], copy[i]];
+      return copy;
+    });
   };
 
   const saveAll = async () => {
