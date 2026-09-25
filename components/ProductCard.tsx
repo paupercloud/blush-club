@@ -11,10 +11,15 @@ export default function ProductCard({ product }: { product: Product }) {
   const { favs, toggleFav } = useCart();
   const [toneIdx, setToneIdx] = useState(0);
   const isFav = favs.includes(product.id);
-  const tones = product.product_variants || [];
+    const tones = product.product_variants || [];
   const tone = tones[toneIdx];
-    const photo = product.product_images?.[0]?.url;
-  const photoFocus = product.product_images?.[0]?.focus || "center";
+  const allImages = product.product_images || [];
+  const toneImages = tone ? allImages.filter((img) => img.variant_id === tone.id) : [];
+  const defaultImages = allImages.filter((img) => !img.variant_id);
+  const photos = toneImages.length > 0 ? toneImages : defaultImages;
+  const currentPhoto = photos[0];
+  const photo = currentPhoto?.url;
+  const photoFocus = currentPhoto?.focus || "center";
   const collections = (product.product_collections || []).map((c) => c.collections?.key);
 
   return (
@@ -42,17 +47,21 @@ export default function ProductCard({ product }: { product: Product }) {
         {tones.length > 0 && (
           <div className="flex items-center gap-1.5 mb-2">
             {tones.slice(0, 4).map((t, i) => (
-              <button
+                           <button
                 key={t.id}
                 title={t.name}
                 onClick={() => setToneIdx(i)}
-                className="swatch w-4 h-4 rounded-full"
+                className="swatch w-4 h-4 rounded-full overflow-hidden"
                 style={{
-                  background: t.swatch_color,
+                  background: t.swatch_type === "image" ? "transparent" : t.swatch_color,
                   border: i === toneIdx ? "2px solid var(--color-text)" : "1px solid rgba(0,0,0,0.15)",
                   opacity: t.available ? 1 : 0.35,
                 }}
-              />
+              >
+                {t.swatch_type === "image" && t.image_url && (
+                  <img src={t.image_url} alt={t.name} className="w-full h-full object-cover" />
+                )}
+              </button>
             ))}
             {tones.length > 4 && <span className="text-[10px] text-[#8A6A6F]">+{tones.length - 4}</span>}
           </div>
