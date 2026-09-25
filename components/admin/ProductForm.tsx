@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import { saveProduct } from "@/actions/products";
 import ImageUploader, { UploadedImage } from "./ImageUploader";
 import { slugify } from "@/lib/format";
+import { createClient } from "@/lib/supabase/client";
 import type { Brand, Category } from "@/lib/types";
 
 const COLLECTION_OPTIONS = [
@@ -25,11 +26,26 @@ export default function ProductForm({
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [name, setName] = useState(initial?.name || "");
+    const [name, setName] = useState(initial?.name || "");
   const [slug, setSlug] = useState(initial?.slug || "");
   const [brandId, setBrandId] = useState(initial?.brand_id || brands[0]?.id || "");
   const [categoryId, setCategoryId] = useState(initial?.category_id || categories[0]?.id || "");
   const [subcategory, setSubcategory] = useState(initial?.subcategory || "");
+  const [subcatOptions, setSubcatOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!categoryId) return;
+    const supabase = createClient();
+    supabase
+      .from("products")
+      .select("subcategory")
+      .eq("category_id", categoryId)
+      .not("subcategory", "is", null)
+      .then(({ data }) => {
+        const unique = Array.from(new Set((data || []).map((r: any) => r.subcategory).filter(Boolean)));
+        setSubcatOptions(unique as string[]);
+      });
+  }, [categoryId]);
   const [sku, setSku] = useState(initial?.sku || "");
   const [price, setPrice] = useState(initial?.price ?? 0);
   const [prevPrice, setPrevPrice] = useState(initial?.prev_price ?? "");
@@ -129,7 +145,18 @@ export default function ProductForm({
       </div>
       <Field label="Nombre del producto"><input className="input" value={name} onChange={(e) => setName(e.target.value)} /></Field>
       <div className="grid grid-cols-2 gap-2.5 my-2.5">
-        <Field label="Subcategoría (opcional)"><input className="input" value={subcategory} onChange={(e) => setSubcategory(e.target.value)} /></Field>
+               <Field label="Subcategoría (opcional)">
+          <input
+            className="input"
+            list="subcat-options"
+            placeholder="Escribe o elige una"
+            value={subcategory}
+            onChange={(e) => setSubcategory(e.target.value)}
+          />
+          <datalist id="subcat-options">
+            {subcatOptions.map((s) => <option key={s} value={s} />)}
+          </datalist>
+        </Field>
         <Field label="SKU (opcional)"><input className="input" value={sku} onChange={(e) => setSku(e.target.value)} /></Field>
       </div>
       <div className="grid grid-cols-2 gap-2.5 mb-2.5">
