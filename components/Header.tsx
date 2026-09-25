@@ -30,7 +30,7 @@ export default function Header({ settings, nav }: { settings: SiteSettings | nul
     >
       <div className="max-w-[1100px] mx-auto px-[18px] py-3.5 flex items-center gap-3.5">
         <button onClick={() => setMenuOpen(!menuOpen)} className="bg-transparent border-none">
-          <Menu size={20} color="var(--color-primary)" />
+                   <Menu size={20} color={settings?.nav_text_color || "var(--color-primary)"} />
         </button>
         <Link href="/" className="flex-none">
           {settings?.logo_url ? (
