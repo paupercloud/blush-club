@@ -54,6 +54,8 @@ export default function NavigationClient({ items }: { items: NavigationItem[] })
           <div key={row.id || `new-${i}`} className="flex items-center gap-2 bg-white border border-[#F0E4E1] rounded-xl p-2">
             <input className="input flex-1" placeholder="Texto (ej. Maquillaje)" value={row.label} onChange={(e) => update(i, "label", e.target.value)} />
             <input className="input flex-1" placeholder="Enlace (ej. /category/maquillaje)" value={row.href} onChange={(e) => update(i, "href", e.target.value)} />
+                        <button onClick={() => moveRow(i, -1)} disabled={i === 0} className="text-[13px] disabled:opacity-30">↑</button>
+            <button onClick={() => moveRow(i, 1)} disabled={i === rows.length - 1} className="text-[13px] disabled:opacity-30">↓</button>
             <button onClick={() => update(i, "visible", !row.visible)}>
               {row.visible ? <Eye size={16} color="var(--color-primary)" /> : <EyeOff size={16} color="#8A6A6F" />}
             </button>
