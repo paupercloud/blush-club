@@ -126,7 +126,16 @@ export default function ProductDetailClient({
               </span>
             )}
           </div>
-
+          {!product.immediate_delivery && settings && (
+            <div className="bg-[#F1E7E2] rounded-xl px-3 py-2.5 mb-3.5">
+              <p className="text-[12.5px] font-semibold" style={{ color: "var(--color-primary)" }}>
+                Resérvalo por {formatCOP(product.price * (settings.deposit_percent / 100))}
+              </p>
+              <p className="text-[11px] text-[#8A6A6F] mt-0.5">
+                Pagas el {settings.deposit_percent}% ahora y cancelas el resto cuando tu pedido llega a Colombia{settings.delivery_time_text ? ` (${settings.delivery_time_text})` : ""}.
+              </p>
+            </div>
+          )}
           <p className="text-[13px] text-[#5A4448] leading-relaxed mb-4">{product.description}</p>
 
           {tones.length > 0 && (
