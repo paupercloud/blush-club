@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { formatCOP } from "@/lib/format";
 import DeleteProductButton from "./DeleteProductButton";
-
+import DuplicateProductButton from "./DuplicateProductButton";
 export default async function AdminProductsPage() {
   const supabase = createServerSupabaseClient();
   const { data: products } = await supabase
@@ -36,6 +36,7 @@ export default async function AdminProductsPage() {
               <Link href={`/admin/products/${p.id}`} className="bg-[#F1E7E2] rounded-lg px-3 py-2 text-xs font-medium">
                 Editar
               </Link>
+                            <DuplicateProductButton id={p.id} name={p.name} />
               <DeleteProductButton id={p.id} name={p.name} />
             </div>
           );
