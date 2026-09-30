@@ -158,3 +158,56 @@ export async function deleteProduct(id: string) {
   revalidatePath("/shop");
   revalidatePath("/admin/products");
 }
+
+export async function duplicateProduct(id: string) {
+  const supabase = await requireAdmin();
+  const { data: original, error } = await supabase
+    .from("products")
+    .select("*, product_images(*), product_variants(*)")
+    .eq("id", id)
+    .single();
+  if (error) throw error;
+
+  const { id: _oldId, slug: _oldSlug, created_at, updated_at, product_images, product_variants, ...rest } = original;
+  const newName = `${original.name} (copia)`;
+  let newSlug = slugify(newName);
+  let suffix = 1;
+  while (true) {
+    const { data: exists } = await supabase.from("products").select("id").eq("slug", newSlug).maybeSingle();
+    if (!exists) break;
+    suffix++;
+    newSlug = `${slugify(newName)}-${suffix}`;
+  }
+
+  const { data: newProduct, error: insertErr } = await supabase
+    .from("products")
+    .insert({ ...rest, name: newName, slug: newSlug, sku: null })
+    .select("id")
+    .single();
+  if (insertErr) throw insertErr;
+  const newProductId = newProduct.id;
+
+  const variantIdMap: Record<string, string> = {};
+  for (const v of product_variants || []) {
+    const { id: oldVId, product_id, ...vRest } = v;
+    const { data: newV, error: vErr } = await supabase
+      .from("product_variants")
+      .insert({ ...vRest, product_id: newProductId })
+      .select("id")
+      .single();
+    if (vErr) throw vErr;
+    variantIdMap[oldVId] = newV.id;
+  }
+
+  for (const img of product_images || []) {
+    const { id: oldImgId, product_id, variant_id, ...imgRest } = img;
+    await supabase.from("product_images").insert({
+      ...imgRest,
+      product_id: newProductId,
+      variant_id: variant_id ? variantIdMap[variant_id] || null : null,
+    });
+  }
+
+  revalidatePath("/admin/products");
+  return { id: newProductId };
+}
