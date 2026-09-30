@@ -42,7 +42,13 @@ export default function ImageUploader({
     const copy = images.filter((_, i) => i !== idx).map((img, i) => ({ ...img, sort_order: i, is_primary: i === 0 }));
     onChange(copy);
   };
-
+  const move = (idx: number, direction: -1 | 1) => {
+    const target = idx + direction;
+    if (target < 0 || target >= images.length) return;
+    const copy = [...images];
+    [copy[idx], copy[target]] = [copy[target], copy[idx]];
+    onChange(copy.map((img, i) => ({ ...img, sort_order: i, is_primary: i === 0 })));
+  };
   const setFocus = (idx: number, focus: string) => {
     const copy = images.map((img, i) => (i === idx ? { ...img, focus } : img));
     onChange(copy);
@@ -71,6 +77,14 @@ export default function ImageUploader({
                 className="absolute -top-1.5 -right-1.5 bg-[#2B2024] text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center"
               >
                 <X size={10} />
+              </button>
+            </div>
+                        <div className="flex gap-0.5">
+              <button type="button" onClick={() => move(i, -1)} disabled={i === 0} className="text-[10px] px-1.5 rounded disabled:opacity-30" style={{ background: "#F1E7E2", color: "#8A6A6F" }}>
+                ◀
+              </button>
+              <button type="button" onClick={() => move(i, 1)} disabled={i === images.length - 1} className="text-[10px] px-1.5 rounded disabled:opacity-30" style={{ background: "#F1E7E2", color: "#8A6A6F" }}>
+                ▶
               </button>
             </div>
             <div className="flex gap-0.5">
