@@ -9,14 +9,16 @@ import type { Product } from "@/lib/types";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { favs, toggleFav } = useCart();
-  const [toneIdx, setToneIdx] = useState(0);
+  const [toneIdx, setToneIdx] = useState<number | null>(null);
   const isFav = favs.includes(product.id);
     const tones = product.product_variants || [];
-  const tone = tones[toneIdx];
+  const tone = toneIdx !== null ? tones[toneIdx] : null;
   const allImages = product.product_images || [];
   const toneImages = tone ? allImages.filter((img) => img.variant_id === tone.id) : [];
   const defaultImages = allImages.filter((img) => !img.variant_id);
-  const photos = toneImages.length > 0 ? toneImages : defaultImages;
+  const photos = tone
+    ? (toneImages.length > 0 ? toneImages : defaultImages)
+    : (defaultImages.length > 0 ? defaultImages : allImages.filter((img) => img.variant_id === tones[0]?.id));
   const currentPhoto = photos[0];
   const photo = currentPhoto?.url;
   const photoFocus = currentPhoto?.focus || "center";
