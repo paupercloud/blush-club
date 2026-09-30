@@ -29,7 +29,7 @@ export default function ProductDetailClient({
   const [qty, setQty] = useState(1);
   const tone = tones[toneIdx];
   const toneImages = tone ? allImages.filter((img) => img.variant_id === tone.id) : [];
-  const photos = toneImages.length > 0 ? toneImages : defaultImages;
+    const photos = toneImages.length > 0 ? [...toneImages, ...defaultImages] : defaultImages;
     const currentPhoto = photos[photoIdx] || photos[0];
   const photo = currentPhoto?.url;
   const photoFocus = currentPhoto?.focus || "center";
