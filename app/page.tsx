@@ -55,7 +55,11 @@ async function SectionRenderer({ section }: { section: HomepageSection }) {
   }
 
   if (section.type === "products") {
-    const products = await getProducts({ collectionKey: section.config?.collection_key });
+        const key = section.config?.collection_key;
+    const products =
+      key === "immediate"
+        ? (await getProducts()).filter((p: any) => p.immediate_delivery)
+        : await getProducts({ collectionKey: key });
     if (products.length === 0) return null;
     return (
       <Wrap title={section.title} subtitle={section.subtitle}>
