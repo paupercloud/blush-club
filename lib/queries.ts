@@ -21,8 +21,15 @@ export async function getProducts(filters?: { collectionKey?: string; categorySl
     const { data: brand } = await supabase.from("brands").select("id").eq("slug", filters.brandSlug).single();
     if (brand) query = query.eq("brand_id", brand.id);
   }
-  if (filters?.q) {
-    query = query.ilike("name", `%${filters.q}%`);
+    if (filters?.q) {
+    const term = filters.q.replace(/[,()%]/g, " ").trim();
+    if (term) {
+      const { data: matchBrands } = await supabase.from("brands").select("id").ilike("name", `%${term}%`);
+      const brandIds = (matchBrands || []).map((b: any) => b.id);
+      const conditions = [`name.ilike.%${term}%`, `subcategory.ilike.%${term}%`];
+      if (brandIds.length) conditions.push(`brand_id.in.(${brandIds.join(",")})`);
+      query = query.or(conditions.join(","));
+    }
   }
 
   const { data, error } = await query;
